@@ -1,4 +1,4 @@
-package com.apollo.logistics;
+package com.apollo.logistics.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
