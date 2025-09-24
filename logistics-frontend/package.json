@@ -14,7 +14,6 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.1",
-    "recharts": "^3.2.1",
     "shadcn-ui": "^0.9.5"
   },
   "devDependencies": {
