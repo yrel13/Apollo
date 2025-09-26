@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15
+    container_name: logistics_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: logistics_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - logistics-net
+
+  backend:
+    build: ./logistics-backend
+    container_name: logistics_backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/logistics_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - logistics-net
+
+volumes:
+  postgres_data:
+
+networks:
+  logistics-net:
