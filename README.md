@@ -18,4 +18,9 @@ Backend Technology:
   - PostgreSQL
 
 Frontend:
-  - 
+  - Vite
+  - ReactJS
+  - Axios for API calls
+  - NodeJS
+  - TailwindCSS
+  - PostCSS
