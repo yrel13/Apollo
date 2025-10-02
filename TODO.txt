@@ -1,0 +1,10 @@
+Week 1 – Backend Core & Authentication
+Goal: Secure backend with JWT authentication and PostgreSQL.
+Tasks:
+Create base packages (config, auth, common, entities).
+Add User entity, repository, DTOs.
+Implement SecurityConfig.java with JWT filters.
+Add AuthController with /register and /login.
+Create GlobalExceptionHandler.
+Test with Postman: register/login → receive JWT.
+Deliverable: Users can register & login; JWT protects all endpoints.
