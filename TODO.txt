@@ -1,0 +1,94 @@
+Week 1 – Backend Core & Authentication
+Goal: Secure backend with JWT authentication and PostgreSQL.
+Tasks:
+Create base packages (config, auth, common, entities).
+Add User entity, repository, DTOs.
+Implement SecurityConfig.java with JWT filters.
+Add AuthController with /register and /login.
+Create GlobalExceptionHandler.
+Test with Postman: register/login → receive JWT.
+Deliverable: Users can register & login; JWT protects all endpoints.
+
+
+
+WEEK 1
+Here’s how we’ll break down 
+Week 1 – Backend Core & Authentication
+into a structured workflow so you can follow it step by step. 
+I’ll also show you the exact files/folders you’ll have by the end of this week.
+
+File Structure (end of Week 1)
+    ```
+    src/main/java/com/logistics
+    │── config
+    │   ├── SecurityConfig.java
+    │   ├── JwtAuthenticationEntryPoint.java
+    │   ├── JwtAuthenticationFilter.java
+    │   ├── JwtTokenProvider.java
+    │
+    │── auth
+    │   ├── AuthController.java
+    │   ├── AuthService.java
+    │   ├── dto
+    │   │   ├── LoginRequest.java
+    │   │   ├── RegisterRequest.java
+    │   │   ├── AuthResponse.java
+    │
+    │── common
+    │   ├── GlobalExceptionHandler.java
+    │
+    │── entities
+    │   ├── User.java
+    │
+    │── repositories
+    │   ├── UserRepository.java
+    ```
+
+
+Step-by-Step Workflow
+    1. Create Base Packages
+        Inside `src/main/java/com/logistics`, create the following:
+        `config` → for security configs & JWT helpers
+        `auth` → controllers & services for authentication
+        `common` → global exception handling, constants
+        `entities` → JPA entities (User, etc.)
+        `repositories` → Spring Data JPA repositories
+
+    2. User Entity & Repository
+        `User.java` → fields: `id`, `username`, `email`, `password`, `role`
+        `UserRepository.java` → extends `JpaRepository<User, Long>`
+
+    3. DTOs for Auth
+
+        `LoginRequest.java` → `username/email`, `password`
+        `RegisterRequest.java` → `username`, `email`, `password`
+        `AuthResponse.java` → returns `JWT token` & maybe user details
+
+    4. JWT Utilities
+        `JwtTokenProvider.java` → generates & validates JWT
+        `JwtAuthenticationFilter.java` → extracts token from header, validates, sets authentication in context
+        `JwtAuthenticationEntryPoint.java` → handles unauthorized access
+
+    5. SecurityConfig.java
+        Enable Spring Security with JWT filters
+        Permit `/api/auth/**` for public access
+        Protect all other endpoints with JWT
+
+    6. AuthController.java
+        `/api/auth/register` → creates a new user, saves in DB (password encrypted with `BCryptPasswordEncoder`)
+        `/api/auth/login` → validates credentials, returns JWT
+
+    7. GlobalExceptionHandler.java
+        Use `@RestControllerAdvice` to handle validation errors, unauthorized access, etc.
+
+    8. Test with Postman
+        `POST /api/auth/register` → create a user
+        `POST /api/auth/login` → returns JWT
+        Try accessing a protected endpoint (e.g., `/api/users/me`) with and without JWT
+
+---
+
+Deliverable by End of Week 1
+- Users can **register and login**
+- JWT issued on login
+- All endpoints protected except `/api/auth/**`
