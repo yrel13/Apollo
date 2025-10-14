@@ -12,14 +12,32 @@ export default function Login(){
     };
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-100"> 
-            <form onSubmit={submit} className="p-6 border rounded">
-                <h2 className="text-2xl mb-4">Login</h2>
-                {err && <div className="text-red-600 mb-2">{err}</div>}
-                <input className="w-full mb-2 p-2 border" value={u} onChange={e=>setU(e.target.value)} placeholder="username"/>
-                <input className="w-full mb-2 p-2 border" type="password" value={p} onChange={e=>setP(e.target.value)} placeholder="password"/>
-                <button className="w-full p-2 bg-blue-600 text-white">Login</button>
-            </form>
-        </div>
-    );
+   <div className="flex justify-center items-center min-h-screen bg-gray-100">
+     <form
+       onSubmit={submit}
+       className="p-8 bg-white shadow-lg rounded-lg w-full max-w-md"
+     >
+       <h2 className="text-2xl mb-4 text-center font-bold">Login</h2>
+       {err && <div className="text-red-600 mb-2">{err}</div>}
+       <input
+         className="w-full mb-3 p-2 border rounded"
+         value={u}
+         onChange={e => setU(e.target.value)}
+         placeholder="Username"
+       />
+       <input
+         className="w-full mb-3 p-2 border rounded"
+         type="password"
+         value={p}
+         onChange={e => setP(e.target.value)}
+         placeholder="Password"
+       />
+       <button
+         className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+       >
+         Login
+       </button>
+     </form>
+   </div>
+ );
 }
