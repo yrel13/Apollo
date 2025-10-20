@@ -20,3 +20,7 @@ public class User {
     @Column(nullable=false) private String password; // bcrypt
     private String role;
 }
+
+public class User implements UserDetails {
+    
+}
