@@ -1,1 +1,25 @@
-WILL PUT THE PGSQL DATABASE SCHEMA HERE.
+-- Database: logistics_db
+
+-- DROP DATABASE IF EXISTS logistics_db;
+
+CREATE DATABASE logistics_db
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'English_Philippines.1252'
+    LC_CTYPE = 'English_Philippines.1252'
+    LOCALE_PROVIDER = 'libc'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+
+-- Table: users
+    create table users (
+	id SERIAL PRIMARY KEY,
+	username VARCHAR(100) NOT NULL UNIQUE,
+	firstname VARCHAR(255) NOT NULL,
+	lastname VARCHAR(255) NOT NULL,
+	email VARCHAR(150) NOT NULL UNIQUE,
+	password VARCHAR(255) NOT NULL,
+	roles VARCHAR(255)
+    );
