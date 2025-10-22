@@ -2,7 +2,7 @@ package com.apollo.logistics.auth.entity;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.userdetails.UserDetails;
+// import org.springframework.security.userdetails.UserDetails;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +21,6 @@ public class User {
     private String role;
 }
 
-public class User implements UserDetails {
-    
-}
+// public class User implements UserDetails {
+    // 
+// }
