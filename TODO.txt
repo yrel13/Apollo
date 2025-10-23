@@ -92,3 +92,14 @@ Deliverable by End of Week 1
 - Users can **register and login**
 - JWT issued on login
 - All endpoints protected except `/api/auth/**`
+
+
+Things to learn: 
+    Spring Boot Annotations
+    Entity/Model
+    Controller
+    DTOs
+    Repository
+    Services
+    Getters and Setters
+    Spring to PostgreSQL connection
