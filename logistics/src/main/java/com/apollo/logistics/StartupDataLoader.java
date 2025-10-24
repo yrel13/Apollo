@@ -5,7 +5,7 @@ import com.apollo.logistics.auth.repository.UserRepository;
 import com.apollo.logistics.auth.entity.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Component
+// @Component
 public class StartupDataLoader implements CommandLineRunner {
   private final UserRepository userRepo; private final PasswordEncoder encoder;
   public StartupDataLoader(UserRepository ur, PasswordEncoder p){ this.userRepo=ur; this.encoder=p;}
