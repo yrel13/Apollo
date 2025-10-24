@@ -22,4 +22,9 @@ CREATE DATABASE logistics_db
 	email VARCHAR(150) NOT NULL UNIQUE,
 	password VARCHAR(255) NOT NULL,
 	roles VARCHAR(255)
+    createdat SET DEFAULT CURRENT_TIMESTAMP,
+    createdat SET NOT NULL,
+    updatedat SET DEFAULT CURRENT_TIMESTAMP,
+    updatedat SET NOT NULL;
+
     );
