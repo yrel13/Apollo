@@ -53,8 +53,6 @@ public class User implements UserDetails {
         this.updatedat = LocalDateTime.now();
     }
 
-    public User() {}
-
     public User(String username, String firstname, String lastname, String email, String password, String role) {
         this.username = username;
         this.firstname = firstname;
