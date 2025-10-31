@@ -103,3 +103,6 @@ Things to learn:
     Services
     Getters and Setters
     Spring to PostgreSQL connection
+
+Spring Boot : User Login and Registration Tutorial [ In 30 Mins ] - Spring boot Series
+https://www.youtube.com/watch?v=X7pGCmVxx10
