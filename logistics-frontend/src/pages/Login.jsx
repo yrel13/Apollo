@@ -12,7 +12,7 @@ export default function Login(){
     };
 
     return (
-        <div className="max-w-md mx-auto mt-20">
+        <div className="max-w-md mx-auto mt-20"> 
             <form onSubmit={submit} className="p-6 border rounded">
                 <h2 className="text-2xl mb-4">Login</h2>
                 {err && <div className="text-red-600 mb-2">{err}</div>}
