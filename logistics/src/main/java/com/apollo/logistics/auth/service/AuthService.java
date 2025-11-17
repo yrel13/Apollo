@@ -1,26 +1,49 @@
 package com.apollo.logistics.auth.service;
-import com.apollo.logistics.auth.dto.LoginRequest;
+
+import com.apollo.logistics.auth.dto.AuthRequest;
+import com.apollo.logistics.auth.dto.AuthResponse;
+import com.apollo.logistics.auth.dto.RegisterRequest;
 import com.apollo.logistics.auth.entity.User;
 import com.apollo.logistics.auth.repository.UserRepository;
 import com.apollo.logistics.common.util.JwtUtil;
-import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import java.util.Map;
+import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository repo; private final PasswordEncoder encoder; private final JwtUtil jwt;
-    public AuthService(UserRepository repo, PasswordEncoder encoder, JwtUtil jwt){ this.repo=repo;this.encoder=encoder;this.jwt=jwt; }
 
-    public Map<String,String> login(LoginRequest req){
-        User user = repo.findByUsername(req.getUsername()).orElseThrow(()->new RuntimeException("User not found"));
-        if (!encoder.matches(req.getPassword(), user.getPassword())) throw new RuntimeException("Invalid credentials");
-        return Map.of("token", jwt.generateToken(user.getUsername()), "role", user.getRole());
+    private final UserRepository userRepo;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+
+    public AuthResponse login(AuthRequest req) {
+
+        User user = userRepo.findByUsername(req.getUsername())
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+        return new AuthResponse(token, user.getRole());
     }
 
-    public void register(String username, String email, String rawPassword, String role){
-        if (repo.existsByUsername(username)) throw new RuntimeException("username exists");
-        User u = User.builder().username(username).email(email).password(encoder.encode(rawPassword)).role(role).build();
-        repo.save(u);
+    public String register(RegisterRequest req) {
+
+        if (userRepo.existsByUsername(req.getUsername())) {
+            throw new RuntimeException("Username already exists");
+        }
+
+        User user = new User();
+        user.setUsername(req.getUsername());
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
+        user.setRole(req.getRole());  // IMPORTANT for role-based access
+
+        userRepo.save(user);
+
+        return "User registered successfully!";
     }
 }
