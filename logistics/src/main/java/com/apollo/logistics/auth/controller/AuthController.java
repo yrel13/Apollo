@@ -17,7 +17,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-    // ========================= LOGIN =========================
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest req) {
         try {
@@ -28,7 +27,6 @@ public class AuthController {
         }
     }
 
-    // ========================= REGISTER =========================
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
         try {

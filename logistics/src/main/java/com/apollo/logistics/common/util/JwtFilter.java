@@ -17,11 +17,24 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserRepository userRepo;
-    public JwtFilter(JwtUtil jwtUtil, UserRepository userRepo){ this.jwtUtil = jwtUtil; this.userRepo = userRepo; }
+
+    public JwtFilter(JwtUtil jwtUtil, UserRepository userRepo){
+        this.jwtUtil = jwtUtil;
+        this.userRepo = userRepo;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
         throws IOException, jakarta.servlet.ServletException {
+
+        String path = req.getServletPath();
+
+        // SKIP JWT check for login/register endpoints
+        if (path.startsWith("/api/auth")) {
+            chain.doFilter(req, res);
+            return;
+        }
+
         String header = req.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
@@ -29,12 +42,15 @@ public class JwtFilter extends OncePerRequestFilter {
                 String username = jwtUtil.extractUsername(token);
                 userRepo.findByUsername(username).ifPresent(user -> {
                     var auth = new UsernamePasswordAuthenticationToken(
-                        username, null, List.of(new SimpleGrantedAuthority("ROLE_"+(user.getRole()==null?"STAFF":user.getRole())))
+                        username, 
+                        null, 
+                        List.of(new SimpleGrantedAuthority("ROLE_" + (user.getRole() == null ? "STAFF" : user.getRole())))
                     );
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 });
             }
         }
+
         chain.doFilter(req, res);
     }
 }

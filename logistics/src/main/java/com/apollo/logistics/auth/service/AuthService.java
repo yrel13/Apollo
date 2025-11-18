@@ -27,8 +27,11 @@ public class AuthService {
             throw new RuntimeException("Invalid credentials");
         }
 
+        // Generate token with username + role
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-        return new AuthResponse(token, user.getRole());
+
+        // Return ALL required fields (token, username, role)
+        return new AuthResponse(token, user.getUsername(), user.getRole());
     }
 
     public String register(RegisterRequest req) {
@@ -39,8 +42,11 @@ public class AuthService {
 
         User user = new User();
         user.setUsername(req.getUsername());
+        user.setFirstname(req.getFirstname());
+        user.setLastname(req.getLastname());
+        user.setEmail(req.getEmail());
         user.setPassword(passwordEncoder.encode(req.getPassword()));
-        user.setRole(req.getRole());  // IMPORTANT for role-based access
+        user.setRole(req.getRole());
 
         userRepo.save(user);
 
