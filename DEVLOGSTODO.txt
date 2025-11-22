@@ -106,3 +106,10 @@ Things to learn:
 
 Spring Boot : User Login and Registration Tutorial [ In 30 Mins ] - Spring boot Series
 https://www.youtube.com/watch?v=X7pGCmVxx10
+
+
+
+22/11/2025
+DEV: Login and Register: 200 OK; Registration works [200 OK] and is sent to the PostgreSQL database; Login works [200 OK] with Jwt token, username, and role response;
+    Login works 200 OK with token, username, and role response: the previous errors with login getting only 403 Forbidden response is caused by Postman headers misconfiguration.
+    Content-Type header changed from "plain/text" to "application/json" and it works with the Registration which worked before this change as well.
