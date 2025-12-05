@@ -1,0 +1,141 @@
+import React, { useState, useEffect } from "react";
+import MainLayout from "../components/MainLayout";
+
+export default function Forecasting() {
+    const [forecasts, setForecasts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedProduct, setSelectedProduct] = useState("MOD-PMP-100");
+    const [forecastPeriod, setForecastPeriod] = useState("90");
+
+    useEffect(() => {
+        // Placeholder: Replace with actual API call
+        setTimeout(() => {
+            setForecasts([
+                { product: "Industrial Pumps (MOD-PMP-100)", expectedDemand: 1850, optimalInventory: 2200, reorderPoint: 1100, accuracy: 92.4 },
+                { product: "Valve Assemblies (MOD-VLV-200)", expectedDemand: 1250, optimalInventory: 1500, reorderPoint: 750, accuracy: 88.6 },
+                { product: "Control Panels (MOD-CTL-300)", expectedDemand: 950, optimalInventory: 1150, reorderPoint: 575, accuracy: 90.2 },
+            ]);
+            setLoading(false);
+        }, 500);
+    }, []);
+
+    const handleGenerateForecast = () => {
+        // Placeholder: Call backend API
+        console.log(`Generating forecast for ${selectedProduct} with ${forecastPeriod} days`);
+    };
+
+    if (loading) return <MainLayout><div className="text-center py-8">Loading forecasting data...</div></MainLayout>;
+
+    return (
+        <MainLayout>
+            <h1 className="text-3xl font-bold mb-6">AI Demand Forecasting</h1>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                {/* Forecast Tool */}
+                <div className="lg:col-span-2 bg-white rounded-lg shadow p-6">
+                    <h2 className="text-lg font-semibold mb-4">Generate Forecast</h2>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Select Product</label>
+                            <select
+                                value={selectedProduct}
+                                onChange={(e) => setSelectedProduct(e.target.value)}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="MOD-PMP-100">Industrial Pumps (MOD-PMP-100)</option>
+                                <option value="MOD-VLV-200">Valve Assemblies (MOD-VLV-200)</option>
+                                <option value="MOD-CTL-300">Control Panels (MOD-CTL-300)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Forecast Period (days)</label>
+                            <select
+                                value={forecastPeriod}
+                                onChange={(e) => setForecastPeriod(e.target.value)}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="30">Next 30 days</option>
+                                <option value="90">Next 90 days</option>
+                                <option value="180">Next 6 months</option>
+                                <option value="365">Next 12 months</option>
+                            </select>
+                        </div>
+                        <button
+                            onClick={handleGenerateForecast}
+                            className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium"
+                        >
+                            <i className="fas fa-brain mr-2"></i> Generate AI Forecast
+                        </button>
+                    </div>
+                </div>
+
+                {/* Results Preview */}
+                <div className="bg-blue-50 rounded-lg shadow p-6">
+                    <h2 className="text-lg font-semibold mb-4">Latest Results</h2>
+                    <div className="space-y-4">
+                        <div>
+                            <div className="flex justify-between mb-1">
+                                <span className="text-sm font-medium">Expected Demand</span>
+                                <span className="text-sm font-bold">1,850 units</span>
+                            </div>
+                            <div className="text-xs text-gray-600">± 5.2% confidence</div>
+                        </div>
+                        <div>
+                            <div className="flex justify-between mb-1">
+                                <span className="text-sm font-medium">Optimal Inventory</span>
+                                <span className="text-sm font-bold">2,200 units</span>
+                            </div>
+                            <div className="text-xs text-gray-600">95% service level</div>
+                        </div>
+                        <div className="pt-4 border-t border-blue-200">
+                            <h4 className="text-sm font-medium mb-2">Key Insights</h4>
+                            <ul className="text-xs space-y-2">
+                                <li className="flex items-start">
+                                    <i className="fas fa-arrow-up text-green-500 mr-2 mt-0.5"></i>
+                                    <span>12% increase expected</span>
+                                </li>
+                                <li className="flex items-start">
+                                    <i className="fas fa-calendar text-blue-500 mr-2 mt-0.5"></i>
+                                    <span>Peak in Week 7</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Forecast Results Table */}
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="p-4 border-b">
+                    <h2 className="text-lg font-semibold">All Forecasts</h2>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expected Demand</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Optimal Inventory</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reorder Point</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {forecasts.map((forecast, idx) => (
+                                <tr key={idx} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{forecast.product}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{forecast.expectedDemand} units</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{forecast.optimalInventory} units</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{forecast.reorderPoint} units</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className="text-sm font-medium text-green-600">{forecast.accuracy}%</span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </MainLayout>
+    );
+}

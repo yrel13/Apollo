@@ -1,0 +1,121 @@
+import React, { useState, useEffect } from "react";
+import MainLayout from "../components/MainLayout";
+
+export default function Reports() {
+    const [reportType, setReportType] = useState("inventory");
+    const [reports, setReports] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Placeholder: Replace with actual API call
+        setTimeout(() => {
+            setReports([
+                { id: 1, name: "Monthly Inventory Summary", date: "Dec 1, 2024", status: "Ready", fileSize: "2.4 MB" },
+                { id: 2, name: "Q4 Shipping Analysis", date: "Nov 30, 2024", status: "Ready", fileSize: "1.8 MB" },
+                { id: 3, name: "Supplier Performance Review", date: "Nov 25, 2024", status: "Processing", fileSize: "—" },
+                { id: 4, name: "Cost Optimization Report", date: "Nov 20, 2024", status: "Ready", fileSize: "3.1 MB" },
+            ]);
+            setLoading(false);
+        }, 500);
+    }, []);
+
+    if (loading) return <MainLayout><div className="text-center py-8">Loading reports...</div></MainLayout>;
+
+    return (
+        <MainLayout>
+            <h1 className="text-3xl font-bold mb-6">Reports & Analytics</h1>
+
+            {/* Report Type Tabs */}
+            <div className="flex space-x-4 mb-6">
+                {["inventory", "shipping", "analytics"].map((type) => (
+                    <button
+                        key={type}
+                        onClick={() => setReportType(type)}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                            reportType === type
+                                ? "bg-blue-600 text-white"
+                                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                        }`}
+                    >
+                        {type === "inventory" && "Inventory Reports"}
+                        {type === "shipping" && "Shipping Reports"}
+                        {type === "analytics" && "Analytics"}
+                    </button>
+                ))}
+            </div>
+
+            {/* Generate Report Section */}
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
+                <h2 className="text-lg font-semibold mb-4">Generate New Report</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                        <select className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option>Last 30 days</option>
+                            <option>Last 90 days</option>
+                            <option>Last 6 months</option>
+                            <option>Last year</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Format</label>
+                        <select className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option>PDF</option>
+                            <option>Excel</option>
+                            <option>CSV</option>
+                        </select>
+                    </div>
+                    <div className="flex items-end">
+                        <button className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium">
+                            <i className="fas fa-download mr-2"></i> Generate
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Reports List */}
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="p-4 border-b">
+                    <h2 className="text-lg font-semibold">Generated Reports</h2>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Report Name</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date Generated</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">File Size</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {reports.map((report) => (
+                                <tr key={report.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{report.name}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{report.date}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                            report.status === "Ready" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                                        }`}>
+                                            {report.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.fileSize}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                        <button className="text-blue-600 hover:text-blue-900 mr-3">
+                                            <i className="fas fa-download"></i>
+                                        </button>
+                                        <button className="text-red-600 hover:text-red-900">
+                                            <i className="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </MainLayout>
+    );
+}

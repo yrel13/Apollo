@@ -1,19 +1,41 @@
 package com.apollo.logistics.inventory.controller;
+
 import org.springframework.web.bind.annotation.*;
 import com.apollo.logistics.inventory.repository.InventoryRepository;
 import com.apollo.logistics.inventory.entity.InventoryItem;
+import com.apollo.logistics.inventory.dto.InventoryItemDTO;
+import com.apollo.logistics.inventory.service.InventoryService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/inventory")
+@RequiredArgsConstructor
 public class InventoryController {
-  private final InventoryRepository repo;
-  public InventoryController(InventoryRepository repo){ this.repo = repo; }
+    
+    private final InventoryRepository repo;
+    private final InventoryService inventoryService;
 
-  @GetMapping public List<InventoryItem> list(){ return repo.findAll(); }
-  @PostMapping public InventoryItem create(@RequestBody InventoryItem it){ return repo.save(it); }
-  @PutMapping("{id}") public InventoryItem update(@PathVariable Long id, @RequestBody InventoryItem it){
-    it.setId(id); return repo.save(it);
-  }
-  @DeleteMapping("{id}") public void delete(@PathVariable Long id){ repo.deleteById(id); }
+    @GetMapping
+    public ResponseEntity<List<InventoryItemDTO>> list() {
+        return ResponseEntity.ok(inventoryService.getAllItems());
+    }
+
+    @PostMapping
+    public ResponseEntity<InventoryItem> create(@RequestBody InventoryItem it) {
+        return ResponseEntity.ok(repo.save(it));
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<InventoryItem> update(@PathVariable Long id, @RequestBody InventoryItem it) {
+        it.setId(id);
+        return ResponseEntity.ok(repo.save(it));
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        repo.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
 }

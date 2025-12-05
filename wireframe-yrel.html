@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturing Logistics System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        .sidebar.collapsed {
+            width: 70px;
+        }
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+        .main-content {
+            transition: all 0.3s ease;
+        }
+        .sidebar.collapsed + .main-content {
+            margin-left: 70px;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 10px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background-color: #e5e7eb;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        .inventory-low {
+            border-left: 4px solid #ef4444;
+        }
+        .inventory-medium {
+            border-left: 4px solid #f59e0b;
+        }
+        .inventory-high {
+            border-left: 4px solid #10b981;
+        }
+        .blink {
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar bg-gray-800 text-white w-64 flex flex-col">
+            <div class="p-4 flex items-center justify-between border-b border-gray-700">
+                <div class="flex items-center">
+                    <i class="fas fa-industry text-blue-400 text-2xl mr-3"></i>
+                    <span class="nav-text font-bold text-xl">ManufacturePro</span>
+                </div>
+                <button id="toggleSidebar" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="p-4 border-b border-gray-700">
+                <div class="flex items-center">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-10 h-10 rounded-full mr-3">
+                    <div class="nav-text">
+                        <div class="font-medium">John Smith</div>
+                        <div class="text-xs text-gray-400">Operations Manager</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 overflow-y-auto">
+                <div class="p-2">
+                    <div class="text-xs uppercase text-gray-500 px-3 py-2 nav-text">Main</div>
+                    <a href="#" class="flex items-center px-3 py-3 text-white bg-gray-700 rounded">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center px-3 py-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded mt-1">
+                        <i class="fas fa-boxes mr-3"></i>
+                        <span class="nav-text">Inventory</span>
+                    </a>
+                    <a href="#" class="flex items-center px-3 py-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded mt-1">
+                        <i class="fas fa-truck mr-3"></i>
+                        <span class="nav-text">Logistics</span>
+                    </a>
+                    <a href="#" class="flex items-center px-3 py-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded mt-1">
+                        <i class="fas fa-chart-line mr-3"></i>
+                        <span class="nav-text">Forecasting</span>
+                    </a>
+                    <a href="#" class="flex items-center px-3 py-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded mt-1">
+                        <i class="fas fa-robot mr-3"></i>
+                        <span class="nav-text">AI Assistant</span>
+                    </a>
+                </div>
+                <div class="p-2">
+                    <div class="text-xs uppercase text-gray-500 px-3 py-2 nav-text">Reports</div>
+                    <a href="#" class="flex items-center px-3 py-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded">
+                        <i class="fas fa-file-alt mr-3"></i>
+                        <span class="nav-text">Inventory Reports</span>
+                    </a>
+                    <a href="#" class="flex items-center px-3 py-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded mt-1">
+                        <i class="fas fa-file-invoice mr-3"></i>
+                        <span class="nav-text">Shipping Reports</span>
+                    </a>
+                    <a href="#" class="flex items-center px-3 py-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded mt-1">
+                        <i class="fas fa-chart-pie mr-3"></i>
+                        <span class="nav-text">Analytics</span>
+                    </a>
+                </div>
+                <div class="p-2">
+                    <div class="text-xs uppercase text-gray-500 px-3 py-2 nav-text">Settings</div>
+                    <a href="#" class="flex items-center px-3 py-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded">
+                        <i class="fas fa-cog mr-3"></i>
+                        <span class="nav-text">System Settings</span>
+                    </a>
+                    <a href="#" class="flex items-center px-3 py-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded mt-1">
+                        <i class="fas fa-users-cog mr-3"></i>
+                        <span class="nav-text">User Management</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="p-4 border-t border-gray-700">
+                <a href="#" class="flex items-center text-gray-400 hover:text-white">
+                    <i class="fas fa-sign-out-alt mr-3"></i>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content flex-1 overflow-y-auto ml-64">
+            <header class="bg-white shadow-sm">
+                <div class="flex justify-between items-center px-6 py-4">
+                    <h1 class="text-2xl font-semibold text-gray-800">Logistics Dashboard</h1>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="text-gray-600 hover:text-gray-900">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge">3</span>
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <button class="text-gray-600 hover:text-gray-900">
+                                <i class="fas fa-envelope"></i>
+                                <span class="notification-badge blink">5</span>
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <input type="text" placeholder="Search..." class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-search absolute right-3 top-2 text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-6">
+                <!-- Status Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Total Inventory Value</p>
+                                <h3 class="text-2xl font-bold">$1,245,678</h3>
+                                <p class="text-green-500 text-sm mt-1">+2.5% from last month</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-boxes text-blue-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Low Stock Items</p>
+                                <h3 class="text-2xl font-bold">18</h3>
+                                <p class="text-red-500 text-sm mt-1 blink">Require immediate attention</p>
+                            </div>
+                            <div class="bg-red-100 p-3 rounded-full">
+                                <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Pending Shipments</p>
+                                <h3 class="text-2xl font-bold">24</h3>
+                                <p class="text-yellow-500 text-sm mt-1">5 delayed shipments</p>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-full">
+                                <i class="fas fa-truck text-yellow-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">AI Forecast Accuracy</p>
+                                <h3 class="text-2xl font-bold">92.4%</h3>
+                                <p class="text-green-500 text-sm mt-1">+3.2% improvement</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-brain text-green-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Inventory Levels -->
+                    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-semibold">Inventory Levels & Forecast</h2>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 bg-blue-500 text-white rounded-md text-sm">Daily</button>
+                                <button class="px-3 py-1 bg-gray-200 text-gray-700 rounded-md text-sm">Weekly</button>
+                                <button class="px-3 py-1 bg-gray-200 text-gray-700 rounded-md text-sm">Monthly</button>
+                            </div>
+                        </div>
+                        <canvas id="inventoryChart" height="250"></canvas>
+                    </div>
+
+                    <!-- AI Recommendations -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-semibold mb-4">AI Recommendations</h2>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-blue-50 rounded-lg">
+                                <div class="flex items-start">
+                                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                        <i class="fas fa-arrow-up text-blue-500"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium">Increase Steel Sheet Order</h4>
+                                        <p class="text-sm text-gray-600">Forecast shows 15% higher demand next month</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-yellow-50 rounded-lg">
+                                <div class="flex items-start">
+                                    <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                                        <i class="fas fa-clock text-yellow-500"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium">Optimize Shipping Routes</h4>
+                                        <p class="text-sm text-gray-600">Potential 12% cost saving on Midwest deliveries</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-red-50 rounded-lg">
+                                <div class="flex items-start">
+                                    <div class="bg-red-100 p-2 rounded-full mr-3">
+                                        <i class="fas fa-exclamation text-red-500"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium">Critical: Plastic Resin Shortage</h4>
+                                        <p class="text-sm text-gray-600">Stock will deplete in 7 days based on current usage</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-green-50 rounded-lg">
+                                <div class="flex items-start">
+                                    <div class="bg-green-100 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check text-green-500"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium">Supplier Performance Improved</h4>
+                                        <p class="text-sm text-gray-600">Acme Metals now 98% on-time delivery</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory and Logistics Tables -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Critical Inventory -->
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="p-4 border-b">
+                            <h2 class="text-lg font-semibold">Critical Inventory Levels</h2>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reorder Level</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr class="inventory-low hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10 bg-red-100 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-box text-red-500"></i>
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Plastic Resin (ABS)</div>
+                                                    <div class="text-sm text-gray-500">MAT-ABS-045</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">250 kg</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">500 kg</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Critical</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="inventory-low hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10 bg-red-100 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-bolt text-red-500"></i>
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Electrical Connectors</div>
+                                                    <div class="text-sm text-gray-500">MAT-EC-112</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">1,200 units</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">2,500 units</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Critical</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="inventory-medium hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-cog text-yellow-500"></i>
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Bearing Assemblies</div>
+                                                    <div class="text-sm text-gray-500">MAT-BA-308</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">85 units</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">100 units</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Low</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="inventory-medium hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-paint-roller text-yellow-500"></i>
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Powder Coating</div>
+                                                    <div class="text-sm text-gray-500">MAT-PC-422</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">320 kg</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">400 kg</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Low</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Previous </a>
+                                <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Next </a>
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Showing
+                                        <span class="font-medium">1</span>
+                                        to
+                                        <span class="font-medium">4</span>
+                                        of
+                                        <span class="font-medium">18</span>
+                                        items
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Previous</span>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                        <a href="#" aria-current="page" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium"> 1 </a>
+                                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"> 2 </a>
+                                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"> 3 </a>
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Next</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pending Shipments -->
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="p-4 border-b">
+                            <h2 class="text-lg font-semibold">Pending Shipments</h2>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order #</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destination</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ETA</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">ORD-78945</div>
+                                            <div class="text-sm text-gray-500">3 pallets</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">Chicago, IL</div>
+                                            <div class="text-sm text-gray-500">Acme Corp</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
+                                                <span>In Transit</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">May 15</div>
+                                            <div class="text-sm text-gray-500">On time</div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">ORD-78944</div>
+                                            <div class="text-sm text-gray-500">12 crates</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">Houston, TX</div>
+                                            <div class="text-sm text-gray-500">Texas Manufacturing</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="h-2.5 w-2.5 rounded-full bg-yellow-500 mr-2"></div>
+                                                <span>Delayed</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">May 18</div>
+                                            <div class="text-sm text-red-500">+2 days</div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">ORD-78941</div>
+                                            <div class="text-sm text-gray-500">1 container</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">Miami, FL</div>
+                                            <div class="text-sm text-gray-500">Ocean Imports</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="h-2.5 w-2.5 rounded-full bg-blue-500 mr-2"></div>
+                                                <span>Processing</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">May 20</div>
+                                            <div class="text-sm text-gray-500">Pending</div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">ORD-78938</div>
+                                            <div class="text-sm text-gray-500">8 pallets</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">Denver, CO</div>
+                                            <div class="text-sm text-gray-500">Mountain Equipment</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
+                                                <span>In Transit</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">May 16</div>
+                                            <div class="text-sm text-gray-500">On time</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Previous </a>
+                                <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Next </a>
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Showing
+                                        <span class="font-medium">1</span>
+                                        to
+                                        <span class="font-medium">4</span>
+                                        of
+                                        <span class="font-medium">24</span>
+                                        shipments
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Previous</span>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                        <a href="#" aria-current="page" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium"> 1 </a>
+                                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"> 2 </a>
+                                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"> 3 </a>
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Next</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supplier Performance -->
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <h2 class="text-lg font-semibold mb-4">Supplier Performance</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-medium">Acme Metals</h3>
+                                <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">Top Performer</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>On-time Delivery</span>
+                                        <span>98%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 98%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Quality Rating</span>
+                                        <span>96%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 96%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Cost Efficiency</span>
+                                        <span>94%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 94%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-medium">Plastico Inc</h3>
+                                <span class="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Average</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>On-time Delivery</span>
+                                        <span>89%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 89%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Quality Rating</span>
+                                        <span>92%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Cost Efficiency</span>
+                                        <span>85%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-medium">Global Components</h3>
+                                <span class="text-sm bg-red-100 text-red-800 px-2 py-1 rounded-full">Needs Improvement</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>On-time Delivery</span>
+                                        <span>76%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 76%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Quality Rating</span>
+                                        <span>82%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 82%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Cost Efficiency</span>
+                                        <span>78%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 78%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Forecasting Tool -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold mb-4">AI Demand Forecasting Tool</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Select Product</label>
+                                <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                    <option>All Products</option>
+                                    <option selected>Industrial Pumps (MOD-PMP-100)</option>
+                                    <option>Valve Assemblies (MOD-VLV-200)</option>
+                                    <option>Control Panels (MOD-CTL-300)</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Forecast Period</label>
+                                <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                    <option>Next 30 days</option>
+                                    <option selected>Next 90 days</option>
+                                    <option>Next 6 months</option>
+                                    <option>Next 12 months</option>
+                                </select>
+                            </div>
+                            <div class="flex space-x-4 mb-4">
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Historical Data</label>
+                                    <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                        <option>1 year</option>
+                                        <option selected>2 years</option>
+                                        <option>3 years</option>
+                                        <option>5 years</option>
+                                    </select>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Seasonality</label>
+                                    <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                        <option>Auto-detect</option>
+                                        <option selected>Quarterly</option>
+                                        <option>Monthly</option>
+                                        <option>None</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md flex items-center justify-center">
+                                <i class="fas fa-brain mr-2"></i> Generate AI Forecast
+                            </button>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-medium mb-3">Forecast Results</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium">Expected Demand</span>
+                                        <span class="text-sm font-medium">1,850 units</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">± 5.2% confidence interval</div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium">Optimal Inventory</span>
+                                        <span class="text-sm font-medium">2,200 units</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Based on 95% service level</div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium">Reorder Point</span>
+                                        <span class="text-sm font-medium">1,100 units</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">Lead time: 14 days</div>
+                                </div>
+                                <div class="pt-4 border-t border-gray-200">
+                                    <h4 class="text-sm font-medium mb-2">Key Insights</h4>
+                                    <ul class="text-xs space-y-2">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-arrow-up text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Expected 12% increase from previous quarter</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-calendar-alt text-blue-500 mr-2 mt-0.5"></i>
+                                            <span>Peak demand expected in Week 7</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-exclamation-triangle text-yellow-500 mr-2 mt-0.5"></i>
+                                            <span>Potential supply chain disruption detected</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar
+        document.getElementById('toggleSidebar').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        });
+
+        // Inventory Chart
+        const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+        const inventoryChart = new Chart(inventoryCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: 'Actual Inventory',
+                        data: [1200, 1900, 1700, 1500, 1300, 1400, 1600, 1800, 2000, 1850, 1750, 1950],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'AI Forecast',
+                        data: [null, null, null, null, null, null, 1600, 1750, 1950, 1900, 1800, 2000],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Reorder Level',
+                        data: [1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 1,
+                        borderDash: [3, 3],
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Inventory Units'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+
+        // Simulate blinking for critical notifications
+        setInterval(() => {
+            document.querySelectorAll('.blink').forEach(el => {
+                el.classList.toggle('opacity-50');
+            });
+        }, 1000);
+    </script>
+</body>
+</html>

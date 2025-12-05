@@ -1,19 +1,20 @@
 package com.apollo.logistics.dashboard.controller;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import com.apollo.logistics.dashboard.dto.KPIResponse;
+import com.apollo.logistics.dashboard.service.DashboardService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-
-@Controller
+@RestController
+@RequestMapping("/api/dashboard")
+@RequiredArgsConstructor
 public class DashboardController {
-    @Value("${server.port}")
-    private String appName;
 
-    @RequestMapping("/")
-    public String index() {
-        System.out.println("Running: " + appName);
+    private final DashboardService dashboardService;
 
-        return "index.html";
+    @GetMapping("/kpis")
+    public ResponseEntity<KPIResponse> getKPIs() {
+        return ResponseEntity.ok(dashboardService.getKPIs());
     }
 }
