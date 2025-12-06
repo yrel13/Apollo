@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "../components/MainLayout";
 import { dashboardAPI } from "../api/dashboardAPI";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+    const navigate = useNavigate();
     const [kpis, setKpis] = useState({ inventoryValue: 0, lowStockItems: 0, pendingShipments: 0, forecastAccuracy: 0 });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -30,7 +32,7 @@ export default function Dashboard() {
         <MainLayout>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                 {/* Inventory Value Card */}
-                <div className="bg-white rounded-lg shadow p-6">
+                <div onClick={() => navigate("/inventory")} className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition-shadow">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-gray-500">Total Inventory Value</p>
@@ -44,7 +46,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Low Stock Items Card */}
-                <div className="bg-white rounded-lg shadow p-6">
+                <div onClick={() => navigate("/inventory")} className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition-shadow">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-gray-500">Low Stock Items</p>
@@ -58,7 +60,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Pending Shipments Card */}
-                <div className="bg-white rounded-lg shadow p-6">
+                <div onClick={() => navigate("/logistics")} className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition-shadow">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-gray-500">Pending Shipments</p>
@@ -72,7 +74,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* AI Forecast Accuracy Card */}
-                <div className="bg-white rounded-lg shadow p-6">
+                <div onClick={() => navigate("/forecasting")} className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition-shadow">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-gray-500">AI Forecast Accuracy</p>

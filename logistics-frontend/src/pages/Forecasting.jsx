@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "../components/MainLayout";
+import { dashboardAPI } from "../api/dashboardAPI";
 
 export default function Forecasting() {
     const [forecasts, setForecasts] = useState([]);
@@ -8,20 +9,35 @@ export default function Forecasting() {
     const [forecastPeriod, setForecastPeriod] = useState("90");
 
     useEffect(() => {
-        // Placeholder: Replace with actual API call
-        setTimeout(() => {
-            setForecasts([
-                { product: "Industrial Pumps (MOD-PMP-100)", expectedDemand: 1850, optimalInventory: 2200, reorderPoint: 1100, accuracy: 92.4 },
-                { product: "Valve Assemblies (MOD-VLV-200)", expectedDemand: 1250, optimalInventory: 1500, reorderPoint: 750, accuracy: 88.6 },
-                { product: "Control Panels (MOD-CTL-300)", expectedDemand: 950, optimalInventory: 1150, reorderPoint: 575, accuracy: 90.2 },
-            ]);
-            setLoading(false);
-        }, 500);
+        const loadForecasts = async () => {
+            try {
+                setLoading(true);
+                const data = await dashboardAPI.listForecasts();
+                setForecasts(data || []);
+            } catch (err) {
+                console.error("Failed to load forecasts", err);
+                setForecasts([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadForecasts();
     }, []);
 
-    const handleGenerateForecast = () => {
-        // Placeholder: Call backend API
-        console.log(`Generating forecast for ${selectedProduct} with ${forecastPeriod} days`);
+    const handleGenerateForecast = async () => {
+        try {
+            await dashboardAPI.generateForecast({
+                product: selectedProduct,
+                forecastPeriod: parseInt(forecastPeriod),
+            });
+            alert('Forecast generated successfully');
+            // Reload forecasts
+            const data = await dashboardAPI.listForecasts();
+            setForecasts(data || []);
+        } catch (err) {
+            console.error(err);
+            alert('Failed to generate forecast');
+        }
     };
 
     if (loading) return <MainLayout><div className="text-center py-8">Loading forecasting data...</div></MainLayout>;

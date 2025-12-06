@@ -1,23 +1,34 @@
 import React, { useState } from "react";
 import MainLayout from "../components/MainLayout";
+import { dashboardAPI } from "../api/dashboardAPI";
 
 export default function AIAssistant() {
     const [messages, setMessages] = useState([
         { id: 1, sender: "ai", text: "Hello! I'm your AI logistics assistant. How can I help you today?" },
     ]);
     const [input, setInput] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const handleSend = () => {
-        if (input.trim()) {
-            setMessages([...messages, { id: messages.length + 1, sender: "user", text: input }]);
-            // Simulate AI response
-            setTimeout(() => {
-                setMessages((prev) => [
-                    ...prev,
-                    { id: prev.length + 1, sender: "ai", text: "I understand. Let me analyze that for you..." },
-                ]);
-            }, 500);
-            setInput("");
+    const handleSend = async () => {
+        if (!input.trim()) return;
+
+        // Add user message
+        const userMsg = { id: messages.length + 1, sender: "user", text: input };
+        setMessages([...messages, userMsg]);
+        setInput("");
+        setLoading(true);
+
+        try {
+            // Call backend AI API
+            const response = await dashboardAPI.sendChatMessage(input);
+            const aiMsg = { id: messages.length + 2, sender: "ai", text: response.reply || "I couldn't process that request." };
+            setMessages(prev => [...prev, aiMsg]);
+        } catch (err) {
+            console.error(err);
+            const errorMsg = { id: messages.length + 2, sender: "ai", text: "Sorry, I encountered an error. Please try again." };
+            setMessages(prev => [...prev, errorMsg]);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -59,7 +70,8 @@ export default function AIAssistant() {
                         />
                         <button
                             onClick={handleSend}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium"
+                            disabled={loading}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium disabled:opacity-50"
                         >
                             <i className="fas fa-paper-plane"></i>
                         </button>

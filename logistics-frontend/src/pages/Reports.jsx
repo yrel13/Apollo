@@ -1,25 +1,71 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "../components/MainLayout";
+import { dashboardAPI } from "../api/dashboardAPI";
+import Pagination from "../components/Pagination";
 
 export default function Reports() {
     const [reportType, setReportType] = useState("inventory");
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [dateRange, setDateRange] = useState("30");
+    const [format, setFormat] = useState("pdf");
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     useEffect(() => {
-        // Placeholder: Replace with actual API call
-        setTimeout(() => {
-            setReports([
-                { id: 1, name: "Monthly Inventory Summary", date: "Dec 1, 2024", status: "Ready", fileSize: "2.4 MB" },
-                { id: 2, name: "Q4 Shipping Analysis", date: "Nov 30, 2024", status: "Ready", fileSize: "1.8 MB" },
-                { id: 3, name: "Supplier Performance Review", date: "Nov 25, 2024", status: "Processing", fileSize: "—" },
-                { id: 4, name: "Cost Optimization Report", date: "Nov 20, 2024", status: "Ready", fileSize: "3.1 MB" },
-            ]);
-            setLoading(false);
-        }, 500);
+        const loadReports = async () => {
+            try {
+                setLoading(true);
+                const data = await dashboardAPI.listReports();
+                setReports(data || []);
+            } catch (err) {
+                console.error("Failed to load reports", err);
+                setReports([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadReports();
     }, []);
 
+    const handleGenerateReport = async () => {
+        try {
+            await dashboardAPI.generateReport({
+                reportType,
+                dateRange: parseInt(dateRange),
+                format,
+            });
+            alert('Report generation started');
+            // Reload reports list
+            const data = await dashboardAPI.listReports();
+            setReports(data || []);
+        } catch (err) {
+            console.error(err);
+            alert('Failed to generate report');
+        }
+    };
+
+    const handleDownloadReport = async (report) => {
+        try {
+            const blob = await dashboardAPI.downloadReport(report.id);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = report.name || 'report';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error(err);
+            alert('Failed to download report');
+        }
+    };
+
     if (loading) return <MainLayout><div className="text-center py-8">Loading reports...</div></MainLayout>;
+
+    const total = reports.length;
+    const paginatedReports = reports.slice((page - 1) * pageSize, page * pageSize);
 
     return (
         <MainLayout>
@@ -50,23 +96,23 @@ export default function Reports() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                        <select className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option>Last 30 days</option>
-                            <option>Last 90 days</option>
-                            <option>Last 6 months</option>
-                            <option>Last year</option>
+                        <select value={dateRange} onChange={(e) => setDateRange(e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="30">Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                            <option value="180">Last 6 months</option>
+                            <option value="365">Last year</option>
                         </select>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Format</label>
-                        <select className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option>PDF</option>
-                            <option>Excel</option>
-                            <option>CSV</option>
+                        <select value={format} onChange={(e) => setFormat(e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="pdf">PDF</option>
+                            <option value="excel">Excel</option>
+                            <option value="csv">CSV</option>
                         </select>
                     </div>
                     <div className="flex items-end">
-                        <button className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium">
+                        <button onClick={handleGenerateReport} className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium">
                             <i className="fas fa-download mr-2"></i> Generate
                         </button>
                     </div>
@@ -90,7 +136,7 @@ export default function Reports() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {reports.map((report) => (
+                            {paginatedReports.map((report) => (
                                 <tr key={report.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{report.name}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{report.date}</td>
@@ -103,11 +149,8 @@ export default function Reports() {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.fileSize}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <button className="text-blue-600 hover:text-blue-900 mr-3">
+                                        <button onClick={() => handleDownloadReport(report)} className="text-blue-600 hover:text-blue-900 mr-3">
                                             <i className="fas fa-download"></i>
-                                        </button>
-                                        <button className="text-red-600 hover:text-red-900">
-                                            <i className="fas fa-trash"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -116,6 +159,7 @@ export default function Reports() {
                     </table>
                 </div>
             </div>
+            <Pagination total={total} page={page} pageSize={pageSize} onPageChange={(p) => setPage(p)} onPageSizeChange={(sz) => { setPageSize(sz); setPage(1); }} />
         </MainLayout>
     );
 }

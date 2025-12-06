@@ -13,15 +13,103 @@ export const dashboardAPI = {
         return data;
     },
 
+    // Create inventory item
+    createInventory: async (payload) => {
+        const { data } = await instance.post("/inventory", payload);
+        return data;
+    },
+
+    // Update inventory item
+    updateInventory: async (id, payload) => {
+        const { data } = await instance.put(`/inventory/${id}`, payload);
+        return data;
+    },
+
+    // Delete inventory item
+    deleteInventory: async (id) => {
+        const { data } = await instance.delete(`/inventory/${id}`);
+        return data;
+    },
+
     // Get shipments
     getShipments: async () => {
         const { data } = await instance.get("/shipments");
+        return data;
+    },
+    // Create shipment
+    createShipment: async (payload) => {
+        const { data } = await instance.post("/shipments", payload);
+        return data;
+    },
+
+    // Update shipment
+    updateShipment: async (id, payload) => {
+        const { data } = await instance.put(`/shipments/${id}`, payload);
+        return data;
+    },
+
+    // Delete shipment
+    deleteShipment: async (id) => {
+        const { data } = await instance.delete(`/shipments/${id}`);
         return data;
     },
 
     // Get users
     getUsers: async () => {
         const { data } = await instance.get("/auth/users");
+        return data;
+    },
+    // Create user
+    createUser: async (payload) => {
+        const { data } = await instance.post("/auth/users", payload);
+        return data;
+    },
+
+    // Update user
+    updateUser: async (id, payload) => {
+        const { data } = await instance.put(`/auth/users/${id}`, payload);
+        return data;
+    },
+
+    // Delete user
+    deleteUser: async (id) => {
+        const { data } = await instance.delete(`/auth/users/${id}`);
+        return data;
+    },
+
+    // Generate forecast
+    generateForecast: async (payload) => {
+        const { data } = await instance.post("/forecasting/generate", payload);
+        return data;
+    },
+
+    // List forecasts
+    listForecasts: async () => {
+        const { data } = await instance.get("/forecasting/list");
+        return data;
+    },
+
+    // Chat with AI
+    sendChatMessage: async (message) => {
+        const { data } = await instance.post("/chat", { message });
+        return data;
+    },
+
+    // Generate report
+    generateReport: async (payload) => {
+        const { data } = await instance.post("/reports/generate", payload);
+        return data;
+    },
+
+    // List reports
+    listReports: async () => {
+        const { data } = await instance.get("/reports/list");
+        return data;
+    },
+
+    // Download report
+    downloadReport: async (id) => {
+        const { data } = await instance.get(`/reports/${id}/download`, { responseType: 'blob' });
         return data;
     },
 };
