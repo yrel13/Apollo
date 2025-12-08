@@ -6,6 +6,8 @@ import com.apollo.logistics.logistics.service.ShipmentService;
 import com.apollo.logistics.logistics.repository.ShipmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -18,8 +20,8 @@ public class ShipmentController {
     private final ShipmentRepository shipmentRepository;
     
     @GetMapping
-    public ResponseEntity<List<ShipmentDTO>> getAllShipments() {
-        return ResponseEntity.ok(shipmentService.getAllShipments());
+    public ResponseEntity<Page<ShipmentDTO>> getAllShipments(Pageable pageable) {
+        return ResponseEntity.ok(shipmentService.getShipments(pageable));
     }
     
     @PostMapping

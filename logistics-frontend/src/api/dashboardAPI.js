@@ -7,9 +7,9 @@ export const dashboardAPI = {
         return data;
     },
 
-    // Get inventory items
-    getInventory: async () => {
-        const { data } = await instance.get("/inventory");
+    // Get inventory items (paged). page is 0-based.
+    getInventory: async (page = 0, size = 10) => {
+        const { data } = await instance.get("/inventory", { params: { page, size } });
         return data;
     },
 
@@ -31,9 +31,9 @@ export const dashboardAPI = {
         return data;
     },
 
-    // Get shipments
-    getShipments: async () => {
-        const { data } = await instance.get("/shipments");
+    // Get shipments (paged). page is 0-based.
+    getShipments: async (page = 0, size = 10) => {
+        const { data } = await instance.get("/shipments", { params: { page, size } });
         return data;
     },
     // Create shipment
@@ -54,9 +54,9 @@ export const dashboardAPI = {
         return data;
     },
 
-    // Get users
-    getUsers: async () => {
-        const { data } = await instance.get("/auth/users");
+    // Get users (paged). page is 0-based.
+    getUsers: async (page = 0, size = 10) => {
+        const { data } = await instance.get("/auth/users", { params: { page, size } });
         return data;
     },
     // Create user
@@ -101,9 +101,9 @@ export const dashboardAPI = {
         return data;
     },
 
-    // List reports
-    listReports: async () => {
-        const { data } = await instance.get("/reports/list");
+    // List reports (paged). page is 0-based.
+    listReports: async (page = 0, size = 10) => {
+        const { data } = await instance.get("/reports/list", { params: { page, size } });
         return data;
     },
 

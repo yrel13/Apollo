@@ -11,42 +11,48 @@ export default function Inventory() {
     const [form, setForm] = useState({ name: "", sku: "", quantity: 0, reorderPoint: 0, unitPrice: 0 });
     const [editingId, setEditingId] = useState(null);
     const [editForm, setEditForm] = useState({ name: "", sku: "", quantity: 0, reorderPoint: 0, unitPrice: 0 });
-    // Pagination state (client-side paging for now)
+    // Pagination state
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [total, setTotal] = useState(0);
 
+    // load when page or pageSize change
     useEffect(() => {
-        dashboardAPI.getInventory()
-            .then(data => {
-                setItems(data);
+        const load = async () => {
+            try {
+                setLoading(true);
+                const data = await dashboardAPI.getInventory(page - 1, pageSize);
+                // backend returns Page object: { content, totalElements, totalPages, number, size }
+                setItems(data.content || []);
+                setTotal(data.totalElements || 0);
                 setLoading(false);
-            })
-            .catch(err => {
+            } catch (err) {
                 setError("Failed to load inventory");
                 setLoading(false);
                 console.error(err);
-            });
-    }, []);
+            }
+        };
+        load();
+    }, [page, pageSize]);
 
     if (loading) return <MainLayout><div className="text-center py-8">Loading inventory...</div></MainLayout>;
     if (error) return <MainLayout><div className="text-red-600 text-center py-8">{error}</div></MainLayout>;
 
-    const refresh = () => {
-        setLoading(true);
-        dashboardAPI.getInventory()
-            .then(data => {
-                setItems(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                setError("Failed to load inventory");
-                setLoading(false);
-                console.error(err);
-            });
+    const refresh = async () => {
+        try {
+            setLoading(true);
+            const data = await dashboardAPI.getInventory(page - 1, pageSize);
+            setItems(data.content || []);
+            setTotal(data.totalElements || 0);
+        } catch (err) {
+            setError("Failed to load inventory");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const total = items.length;
-    const paginatedItems = items.slice((page - 1) * pageSize, page * pageSize);
+    const paginatedItems = items; // items are server-page content
 
     const startEdit = (item) => {
         setEditingId(item.id);

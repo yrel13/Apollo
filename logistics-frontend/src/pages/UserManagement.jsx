@@ -15,24 +15,31 @@ export default function UserManagement() {
     const [formErrors, setFormErrors] = useState({});
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [total, setTotal] = useState(0);
 
+    // Load users when page or pageSize change
     useEffect(() => {
-        dashboardAPI.getUsers()
-            .then(data => {
-                setUsers(data);
+        const load = async () => {
+            try {
+                setLoading(true);
+                const data = await dashboardAPI.getUsers(page - 1, pageSize);
+                setUsers(data.content || []);
+                setTotal(data.totalElements || 0);
                 setLoading(false);
-            })
-            .catch(err => {
+            } catch (err) {
                 setError("Failed to load users");
                 setLoading(false);
                 console.error(err);
-            });
-    }, []);
+            }
+        };
+        load();
+    }, [page, pageSize]);
 
     const refreshUsers = async () => {
         try {
-            const data = await dashboardAPI.getUsers();
-            setUsers(data);
+            const data = await dashboardAPI.getUsers(page - 1, pageSize);
+            setUsers(data.content || []);
+            setTotal(data.totalElements || 0);
         } catch (err) {
             console.error("Failed to refresh users", err);
         }
@@ -106,8 +113,7 @@ export default function UserManagement() {
     if (loading) return <MainLayout><div className="text-center py-8">Loading users...</div></MainLayout>;
     if (error) return <MainLayout><div className="text-red-600 text-center py-8">{error}</div></MainLayout>;
 
-    const total = users.length;
-    const paginatedUsers = users.slice((page - 1) * pageSize, page * pageSize);
+    const paginatedUsers = users; // users are server-page content
 
     return (
         <MainLayout>

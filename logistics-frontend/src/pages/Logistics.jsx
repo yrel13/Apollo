@@ -12,24 +12,30 @@ export default function Logistics() {
     const [form, setForm] = useState({ orderNumber: "", destination: "", status: "Processing", eta: "", delay: 0 });
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [total, setTotal] = useState(0);
 
     useEffect(() => {
-        dashboardAPI.getShipments()
-            .then(data => {
-                setShipments(data);
+        const load = async () => {
+            try {
+                setLoading(true);
+                const data = await dashboardAPI.getShipments(page - 1, pageSize);
+                setShipments(data.content || []);
+                setTotal(data.totalElements || 0);
                 setLoading(false);
-            })
-            .catch(err => {
+            } catch (err) {
                 setError("Failed to load shipments");
                 setLoading(false);
                 console.error(err);
-            });
-    }, []);
+            }
+        };
+        load();
+    }, [page, pageSize]);
 
     const refreshShipments = async () => {
         try {
-            const data = await dashboardAPI.getShipments();
-            setShipments(data);
+            const data = await dashboardAPI.getShipments(page - 1, pageSize);
+            setShipments(data.content || []);
+            setTotal(data.totalElements || 0);
         } catch (err) {
             console.error('Failed to refresh shipments', err);
         }
@@ -102,8 +108,7 @@ export default function Logistics() {
     if (loading) return <MainLayout><div className="text-center py-8">Loading shipments...</div></MainLayout>;
     if (error) return <MainLayout><div className="text-red-600 text-center py-8">{error}</div></MainLayout>;
 
-    const total = shipments.length;
-    const paginatedShipments = shipments.slice((page - 1) * pageSize, page * pageSize);
+    const paginatedShipments = shipments; // shipments are server-page content
 
     const getStatusColor = (status) => {
         switch (status) {

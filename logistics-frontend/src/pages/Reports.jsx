@@ -11,22 +11,25 @@ export default function Reports() {
     const [format, setFormat] = useState("pdf");
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [total, setTotal] = useState(0);
 
     useEffect(() => {
         const loadReports = async () => {
             try {
                 setLoading(true);
-                const data = await dashboardAPI.listReports();
-                setReports(data || []);
+                const data = await dashboardAPI.listReports(page - 1, pageSize);
+                setReports(data.content || []);
+                setTotal(data.totalElements || 0);
             } catch (err) {
                 console.error("Failed to load reports", err);
                 setReports([]);
+                setTotal(0);
             } finally {
                 setLoading(false);
             }
         };
         loadReports();
-    }, []);
+    }, [page, pageSize]);
 
     const handleGenerateReport = async () => {
         try {
@@ -37,8 +40,9 @@ export default function Reports() {
             });
             alert('Report generation started');
             // Reload reports list
-            const data = await dashboardAPI.listReports();
-            setReports(data || []);
+            const data = await dashboardAPI.listReports(page - 1, pageSize);
+            setReports(data.content || []);
+            setTotal(data.totalElements || 0);
         } catch (err) {
             console.error(err);
             alert('Failed to generate report');
@@ -64,8 +68,7 @@ export default function Reports() {
 
     if (loading) return <MainLayout><div className="text-center py-8">Loading reports...</div></MainLayout>;
 
-    const total = reports.length;
-    const paginatedReports = reports.slice((page - 1) * pageSize, page * pageSize);
+    const paginatedReports = reports; // reports are server-page content
 
     return (
         <MainLayout>

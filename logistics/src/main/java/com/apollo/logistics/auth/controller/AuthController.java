@@ -11,6 +11,9 @@ import com.apollo.logistics.auth.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,21 +47,22 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> users = userRepository.findAll()
-                .stream()
-                .map(user -> new UserDTO(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getRole(),
-                        "Active",
-                        user.getCreatedat()
-                ))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(users);
-    }
+        @GetMapping("/users")
+        public ResponseEntity<Page<UserDTO>> getAllUsers(Pageable pageable) {
+        var page = userRepository.findAll(pageable);
+        List<UserDTO> users = page.getContent()
+            .stream()
+            .map(user -> new UserDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                "Active",
+                user.getCreatedat()
+            ))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(new PageImpl<>(users, pageable, page.getTotalElements()));
+        }
 
     @PutMapping("/users/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {

@@ -4,6 +4,9 @@ import com.apollo.logistics.logistics.dto.ShipmentDTO;
 import com.apollo.logistics.logistics.repository.ShipmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -20,6 +23,14 @@ public class ShipmentService {
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public Page<ShipmentDTO> getShipments(Pageable pageable) {
+        var page = shipmentRepository.findAll(pageable);
+        List<ShipmentDTO> dtos = page.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return new PageImpl<>(dtos, pageable, page.getTotalElements());
     }
     
     private ShipmentDTO convertToDTO(com.apollo.logistics.logistics.entity.Shipment shipment) {

@@ -7,6 +7,8 @@ import com.apollo.logistics.inventory.dto.InventoryItemDTO;
 import com.apollo.logistics.inventory.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
@@ -18,8 +20,8 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping
-    public ResponseEntity<List<InventoryItemDTO>> list() {
-        return ResponseEntity.ok(inventoryService.getAllItems());
+    public ResponseEntity<Page<InventoryItemDTO>> list(Pageable pageable) {
+        return ResponseEntity.ok(inventoryService.getItems(pageable));
     }
 
     @PostMapping
