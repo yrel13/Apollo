@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "../components/MainLayout";
 import { dashboardAPI } from "../api/dashboardAPI";
 import Pagination from "../components/Pagination";
+import { parseApiError } from "../utils/apiErrors";
+import { showToast } from "../utils/toast";
 
 export default function Logistics() {
     const [shipments, setShipments] = useState([]);
@@ -10,6 +12,7 @@ export default function Logistics() {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingShipment, setEditingShipment] = useState(null);
     const [form, setForm] = useState({ orderNumber: "", destination: "", status: "Processing", eta: "", delay: 0 });
+    const [formErrors, setFormErrors] = useState({});
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [total, setTotal] = useState(0);
@@ -44,6 +47,7 @@ export default function Logistics() {
     const openAdd = () => {
         setEditingShipment(null);
         setForm({ orderNumber: "", destination: "", status: "Processing", eta: "", delay: 0 });
+        setFormErrors({});
         setModalOpen(true);
     };
 
@@ -52,17 +56,22 @@ export default function Logistics() {
         // Backend exposes orderNumber and eta may be ISO string; normalize to date-only for the input
         const etaStr = s.eta ? (typeof s.eta === 'string' ? s.eta.split('T')[0] : s.eta) : "";
         setForm({ orderNumber: s.orderNumber || "", destination: s.destination || "", status: s.status || "Processing", eta: etaStr, delay: s.delay || 0 });
+        setFormErrors({});
         setModalOpen(true);
     };
 
     const closeModal = () => {
         setModalOpen(false);
         setEditingShipment(null);
+        setFormErrors({});
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: name === 'delay' ? Number(value) : value }));
+        if (formErrors[name]) {
+            setFormErrors(prev => ({ ...prev, [name]: "" }));
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -80,16 +89,18 @@ export default function Logistics() {
             }
             if (editingShipment) {
                 await dashboardAPI.updateShipment(editingShipment.id, payload);
-                alert('Shipment updated');
+                showToast('Shipment updated', 'success');
             } else {
                 await dashboardAPI.createShipment(payload);
-                alert('Shipment created');
+                showToast('Shipment created', 'success');
             }
             closeModal();
             await refreshShipments();
         } catch (err) {
             console.error(err);
-            alert('Failed to save shipment');
+            const { message, fieldErrors } = parseApiError(err);
+            setFormErrors(fieldErrors);
+            showToast(message, 'error');
         }
     };
 
@@ -181,11 +192,13 @@ export default function Logistics() {
                         <form onSubmit={handleSubmit}>
                             <div className="mb-3">
                                 <label className="block text-sm font-medium text-gray-700">Order #</label>
-                                <input name="orderNumber" value={form.orderNumber} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" />
+                                <input name="orderNumber" value={form.orderNumber} onChange={handleChange} required className={`mt-1 block w-full border rounded-md px-3 py-2 ${formErrors.orderNumber ? 'border-red-500' : 'border-gray-300'}`} />
+                                {formErrors.orderNumber && <p className="text-xs text-red-600 mt-1">{formErrors.orderNumber}</p>}
                             </div>
                             <div className="mb-3">
                                 <label className="block text-sm font-medium text-gray-700">Destination</label>
-                                <input name="destination" value={form.destination} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" />
+                                <input name="destination" value={form.destination} onChange={handleChange} required className={`mt-1 block w-full border rounded-md px-3 py-2 ${formErrors.destination ? 'border-red-500' : 'border-gray-300'}`} />
+                                {formErrors.destination && <p className="text-xs text-red-600 mt-1">{formErrors.destination}</p>}
                             </div>
                             <div className="mb-3">
                                 <label className="block text-sm font-medium text-gray-700">Status</label>
@@ -198,11 +211,13 @@ export default function Logistics() {
                             </div>
                             <div className="mb-3">
                                 <label className="block text-sm font-medium text-gray-700">ETA</label>
-                                <input name="eta" value={form.eta} onChange={handleChange} placeholder="YYYY-MM-DD" className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" />
+                                <input name="eta" value={form.eta} onChange={handleChange} placeholder="YYYY-MM-DD" className={`mt-1 block w-full border rounded-md px-3 py-2 ${formErrors.eta ? 'border-red-500' : 'border-gray-300'}`} />
+                                {formErrors.eta && <p className="text-xs text-red-600 mt-1">{formErrors.eta}</p>}
                             </div>
                             <div className="mb-3">
                                 <label className="block text-sm font-medium text-gray-700">Delay (days)</label>
-                                <input name="delay" type="number" value={form.delay} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" />
+                                <input name="delay" type="number" value={form.delay} onChange={handleChange} className={`mt-1 block w-full border rounded-md px-3 py-2 ${formErrors.delay ? 'border-red-500' : 'border-gray-300'}`} />
+                                {formErrors.delay && <p className="text-xs text-red-600 mt-1">{formErrors.delay}</p>}
                             </div>
                             <div className="flex justify-end mt-4">
                                 <button type="button" onClick={closeModal} className="mr-3 px-4 py-2 rounded-md border">Cancel</button>

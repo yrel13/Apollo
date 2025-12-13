@@ -4,6 +4,7 @@ import { dashboardAPI } from "../api/dashboardAPI";
 import { showToast } from "../utils/toast";
 import { validateUserForm } from "../utils/validation";
 import Pagination from "../components/Pagination";
+import { parseApiError } from "../utils/apiErrors";
 
 export default function UserManagement() {
     const [users, setUsers] = useState([]);
@@ -48,12 +49,14 @@ export default function UserManagement() {
     const openAdd = () => {
         setEditingUser(null);
         setForm({ username: "", email: "", role: "user", status: "Active", password: "" });
+        setFormErrors({});
         setModalOpen(true);
     };
 
     const openEdit = (user) => {
         setEditingUser(user);
         setForm({ username: user.username || "", email: user.email || "", role: user.role || "user", status: user.status || "Active", password: "" });
+        setFormErrors({});
         setModalOpen(true);
     };
 
@@ -94,7 +97,9 @@ export default function UserManagement() {
             await refreshUsers();
         } catch (err) {
             console.error(err);
-            showToast('Failed to save user', 'error');
+            const { message, fieldErrors } = parseApiError(err);
+            setFormErrors(fieldErrors);
+            showToast(message, 'error');
         }
     };
 
