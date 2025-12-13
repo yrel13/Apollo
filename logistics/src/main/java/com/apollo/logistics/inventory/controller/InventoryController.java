@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -25,12 +26,12 @@ public class InventoryController {
     }
 
     @PostMapping
-    public ResponseEntity<InventoryItem> create(@RequestBody InventoryItem it) {
+    public ResponseEntity<InventoryItem> create(@Valid @RequestBody InventoryItem it) {
         return ResponseEntity.ok(repo.save(it));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<InventoryItem> update(@PathVariable Long id, @RequestBody InventoryItem it) {
+    public ResponseEntity<InventoryItem> update(@PathVariable Long id, @Valid @RequestBody InventoryItem it) {
         it.setId(id);
         return ResponseEntity.ok(repo.save(it));
     }

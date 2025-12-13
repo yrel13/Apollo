@@ -1,6 +1,7 @@
 package com.apollo.logistics.logistics.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -18,12 +19,15 @@ public class Shipment {
     private Long id;
     
     @Column(nullable = false, unique = true)
+    @NotBlank(message = "Order number is required")
     private String orderNumber;
     
     @Column(nullable = false)
+    @NotBlank(message = "Destination is required")
     private String destination;
     
     @Column(nullable = false)
+    @NotBlank(message = "Status is required")
     private String status; // In Transit, Delivered, Delayed, Processing
     
     private LocalDateTime eta;

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -25,12 +26,12 @@ public class ShipmentController {
     }
     
     @PostMapping
-    public ResponseEntity<Shipment> createShipment(@RequestBody Shipment shipment) {
+    public ResponseEntity<Shipment> createShipment(@Valid @RequestBody Shipment shipment) {
         return ResponseEntity.ok(shipmentRepository.save(shipment));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Shipment> updateShipment(@PathVariable Long id, @RequestBody Shipment shipment) {
+    public ResponseEntity<Shipment> updateShipment(@PathVariable Long id, @Valid @RequestBody Shipment shipment) {
         shipment.setId(id);
         return ResponseEntity.ok(shipmentRepository.save(shipment));
     }
