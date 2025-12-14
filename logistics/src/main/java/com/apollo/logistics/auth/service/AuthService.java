@@ -46,7 +46,8 @@ public class AuthService {
         user.setLastname(req.getLastname());
         user.setEmail(req.getEmail());
         user.setPassword(passwordEncoder.encode(req.getPassword()));
-        user.setRole(req.getRole());
+        // Force public registrations to standard USER role; admin accounts are managed via admin-only endpoints
+        user.setRole("USER");
 
         userRepo.save(user);
 

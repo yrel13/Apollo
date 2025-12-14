@@ -9,6 +9,7 @@ import Reports from "../pages/Reports";
 import Settings from "../pages/Settings";
 import AIAssistant from "../pages/AIAssistant";
 import UserManagement from "../pages/UserManagement";
+import Audit from "../pages/Audit";
 import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function AppRoutes(){
@@ -27,7 +28,8 @@ export default function AppRoutes(){
         <Route path="/reports/shipping" element={<ProtectedRoute><Reports/></ProtectedRoute>}/>
         <Route path="/reports/analytics" element={<ProtectedRoute><Reports/></ProtectedRoute>}/>
         <Route path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>}/>
-        <Route path="/users" element={<ProtectedRoute><UserManagement/></ProtectedRoute>}/>
+        <Route path="/users" element={<ProtectedRoute roles={["ADMIN"]}><UserManagement/></ProtectedRoute>}/>
+        <Route path="/admin/audit" element={<ProtectedRoute roles={["ADMIN"]}><Audit/></ProtectedRoute>}/>
       </Routes>
     </BrowserRouter>
   );

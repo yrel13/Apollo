@@ -9,8 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
 import java.util.List;
+import com.apollo.logistics.common.audit.AuditLogger;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/inventory")
@@ -19,26 +22,36 @@ public class InventoryController {
     
     private final InventoryRepository repo;
     private final InventoryService inventoryService;
+    private final AuditLogger auditLogger;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public ResponseEntity<Page<InventoryItemDTO>> list(Pageable pageable) {
         return ResponseEntity.ok(inventoryService.getItems(pageable));
     }
 
     @PostMapping
-    public ResponseEntity<InventoryItem> create(@Valid @RequestBody InventoryItem it) {
-        return ResponseEntity.ok(repo.save(it));
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<InventoryItem> create(@Valid @RequestBody InventoryItem it, Authentication auth) {
+        var saved = repo.save(it);
+        auditLogger.adminAction(auth.getName(), "CREATE", "InventoryItem", saved.getId());
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<InventoryItem> update(@PathVariable Long id, @Valid @RequestBody InventoryItem it) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<InventoryItem> update(@PathVariable Long id, @Valid @RequestBody InventoryItem it, Authentication auth) {
         it.setId(id);
-        return ResponseEntity.ok(repo.save(it));
+        var saved = repo.save(it);
+        auditLogger.adminAction(auth.getName(), "UPDATE", "InventoryItem", saved.getId());
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> delete(@PathVariable Long id, Authentication auth) {
         repo.deleteById(id);
+        auditLogger.adminAction(auth.getName(), "DELETE", "InventoryItem", id);
         return ResponseEntity.ok().build();
     }
 }

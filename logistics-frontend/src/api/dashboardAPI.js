@@ -112,4 +112,15 @@ export const dashboardAPI = {
         const { data } = await instance.get(`/reports/${id}/download`, { responseType: 'blob' });
         return data;
     },
+
+    // List audit events (admin only)
+    listAuditEvents: async (page = 0, size = 10, filters = {}) => {
+        const { data } = await instance.get("/audit", { params: { page, size, ...filters } });
+        return data;
+    },
+
+    exportAuditCsv: async (filters = {}) => {
+        const { data } = await instance.get("/audit/export", { params: { ...filters }, responseType: 'blob' });
+        return data;
+    },
 };

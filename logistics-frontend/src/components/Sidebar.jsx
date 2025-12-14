@@ -82,7 +82,15 @@ export default function Sidebar() {
           {!collapsed && (
             <div className="ml-3">
               <div className="font-medium text-sm">{user?.username || "User"}</div>
-              <div className="text-xs text-gray-400 capitalize">{user?.role || "user"}</div>
+              <div className="text-xs">
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                  (user?.role || '').toUpperCase() === 'ADMIN'
+                    ? 'bg-yellow-200 text-yellow-900'
+                    : 'bg-blue-200 text-blue-900'
+                }`}>
+                  {(user?.role || 'user').toUpperCase()}
+                </span>
+              </div>
             </div>
           )}
         </div>
@@ -106,6 +114,9 @@ export default function Sidebar() {
         <Section title="Settings" collapsed={collapsed}>
           <NavItem to="/settings" icon="fa-cog" label="System Settings" collapsed={collapsed} active={isActive("/settings")} />
           <NavItem to="/users" icon="fa-users-cog" label="User Management" collapsed={collapsed} active={isActive("/users")} />
+          {(user?.role || '').toUpperCase() === 'ADMIN' && (
+            <NavItem to="/admin/audit" icon="fa-clipboard-list" label="Audit Logs" collapsed={collapsed} active={isActive("/admin/audit")} />
+          )}
         </Section>
       </nav>
 

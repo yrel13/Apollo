@@ -4,8 +4,11 @@ import { dashboardAPI } from "../api/dashboardAPI";
 import Pagination from "../components/Pagination";
 import { parseApiError } from "../utils/apiErrors";
 import { showToast } from "../utils/toast";
+import { useAuth } from "../context/AuthContext";
 
 export default function Inventory() {
+    const { user } = useAuth();
+    const isAdmin = (user?.role || "").toUpperCase() === "ADMIN";
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -92,6 +95,7 @@ export default function Inventory() {
     };
 
     const saveEdit = async (id) => {
+        if (!isAdmin) { showToast("Admins only", "error"); return; }
         try {
             await dashboardAPI.updateInventory(id, {
                 name: editForm.name,
@@ -113,6 +117,7 @@ export default function Inventory() {
 
     const handleAdd = async (e) => {
         e.preventDefault();
+        if (!isAdmin) { showToast("Admins only", "error"); return; }
         try {
             await dashboardAPI.createInventory({
                 name: form.name,
@@ -135,6 +140,7 @@ export default function Inventory() {
     };
 
     const handleDelete = async (id) => {
+        if (!isAdmin) { showToast("Admins only", "error"); return; }
         if (!confirm("Delete this item?")) return;
         try {
             await dashboardAPI.deleteInventory(id);
@@ -150,15 +156,20 @@ export default function Inventory() {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Inventory Management</h1>
                 <div className="flex items-center gap-2">
-                    <button onClick={() => { setShowAdd((s) => !s); setError(""); }} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                        <i className="fas fa-plus mr-2"></i> {showAdd ? "Cancel" : "Add Item"}
-                    </button>
+                    {isAdmin && (
+                        <button onClick={() => { setShowAdd((s) => !s); setError(""); }} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            <i className="fas fa-plus mr-2"></i> {showAdd ? "Cancel" : "Add Item"}
+                        </button>
+                    )}
                     <button onClick={refresh} className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg">Refresh</button>
                 </div>
             </div>
 
-            {showAdd && (
+            {showAdd && isAdmin && (
                 <form onSubmit={handleAdd} className="bg-white p-4 rounded-lg shadow mb-6">
+                    <div className="mb-2 text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded px-3 py-2">
+                        Admins only: creating items requires ADMIN role.
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                         <div>
                             <input required value={form.name} onChange={e => handleAddChange('name', e.target.value)} placeholder="Name" className={`border p-2 rounded w-full ${formErrors.name ? 'border-red-500' : ''}`} />
@@ -246,8 +257,14 @@ export default function Inventory() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                                <button onClick={() => startEdit(item)} className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
-                                                <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-900">Delete</button>
+                                                {isAdmin ? (
+                                                    <>
+                                                        <button onClick={() => startEdit(item)} className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                                                        <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-900">Delete</button>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-gray-400">View only</span>
+                                                )}
                                             </td>
                                         </>
                                     )}

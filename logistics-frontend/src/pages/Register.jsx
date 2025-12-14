@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 export default function Register(){
     const { register } = useAuth();
     const nav = useNavigate();
-    const [form, setForm] = useState({ username: "", password: "", firstname: "", lastname: "", email: "", role: "user" });
+    const [form, setForm] = useState({ username: "", password: "", firstname: "", lastname: "", email: "" });
     const [err, setErr] = useState("");
 
     const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -30,10 +30,6 @@ export default function Register(){
                 <input name="firstname" className="w-full mb-2 p-2 border" value={form.firstname} onChange={onChange} placeholder="first name"/>
                 <input name="lastname" className="w-full mb-2 p-2 border" value={form.lastname} onChange={onChange} placeholder="last name"/>
                 <input name="email" className="w-full mb-2 p-2 border" value={form.email} onChange={onChange} placeholder="email"/>
-                <select name="role" className="w-full mb-4 p-2 border" value={form.role} onChange={onChange}>
-                    <option value="user">user</option>
-                    <option value="admin">admin</option>
-                </select>
                 <button className="w-full p-2 bg-green-600 text-white">Register</button>
             </form>
         </div>

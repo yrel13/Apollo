@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -49,6 +50,7 @@ public class AuthController {
     }
 
         @GetMapping("/users")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<Page<UserDTO>> getAllUsers(Pageable pageable) {
         var page = userRepository.findAll(pageable);
         List<UserDTO> users = page.getContent()
@@ -66,6 +68,7 @@ public class AuthController {
         }
 
     @PutMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
         try {
             user.setId(id);
@@ -78,6 +81,7 @@ public class AuthController {
     }
 
     @DeleteMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
             userRepository.deleteById(id);

@@ -46,11 +46,12 @@ public class JwtFilter extends OncePerRequestFilter {
                 String username = jwtUtil.extractUsername(token);
 
                 userRepo.findByUsername(username).ifPresent(user -> {
-                    var auth = new UsernamePasswordAuthenticationToken(
+                        String role = user.getRole() == null ? "USER" : user.getRole().toUpperCase();
+                        var auth = new UsernamePasswordAuthenticationToken(
                             username,
                             null,
-                            List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
-                    );
+                            List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                        );
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 });
             }

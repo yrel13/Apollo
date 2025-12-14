@@ -4,8 +4,11 @@ import { dashboardAPI } from "../api/dashboardAPI";
 import Pagination from "../components/Pagination";
 import { parseApiError } from "../utils/apiErrors";
 import { showToast } from "../utils/toast";
+import { useAuth } from "../context/AuthContext";
 
 export default function Logistics() {
+    const { user } = useAuth();
+    const isAdmin = (user?.role || "").toUpperCase() === "ADMIN";
     const [shipments, setShipments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -76,6 +79,7 @@ export default function Logistics() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!isAdmin) { showToast('Admins only', 'error'); return; }
         try {
             // Prepare payload matching backend Shipment entity
             const payload = {
@@ -105,6 +109,7 @@ export default function Logistics() {
     };
 
     const handleDelete = async (s) => {
+        if (!isAdmin) { showToast('Admins only', 'error'); return; }
         if (!window.confirm(`Cancel shipment ${s.orderNumber}?`)) return;
         try {
             await dashboardAPI.deleteShipment(s.id);
@@ -138,9 +143,11 @@ export default function Logistics() {
         <MainLayout>
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Logistics & Shipments</h1>
-                <button onClick={openAdd} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                    <i className="fas fa-plus mr-2"></i> Create Shipment
-                </button>
+                {isAdmin && (
+                    <button onClick={openAdd} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i className="fas fa-plus mr-2"></i> Create Shipment
+                    </button>
+                )}
             </div>
 
             <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -174,8 +181,14 @@ export default function Logistics() {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                                         <button className="text-blue-600 hover:text-blue-900 mr-3">Track</button>
-                                        <button onClick={() => openEdit(shipment)} className="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                                        <button onClick={() => handleDelete(shipment)} className="text-red-600 hover:text-red-900">Cancel</button>
+                                        {isAdmin ? (
+                                            <>
+                                                <button onClick={() => openEdit(shipment)} className="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                                                <button onClick={() => handleDelete(shipment)} className="text-red-600 hover:text-red-900">Cancel</button>
+                                            </>
+                                        ) : (
+                                            <span className="text-gray-400">View only</span>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
@@ -189,6 +202,15 @@ export default function Logistics() {
                     <div className="fixed inset-0 bg-black opacity-30" onClick={closeModal}></div>
                     <div className="bg-white rounded-lg shadow-lg z-50 w-full max-w-md p-6">
                         <h2 className="text-xl font-bold mb-4">{editingShipment ? 'Edit Shipment' : 'Create Shipment'}</h2>
+                        {isAdmin ? (
+                            <div className="mb-2 text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded px-3 py-2">
+                                Admins only: shipment changes require ADMIN role.
+                            </div>
+                        ) : (
+                            <div className="mb-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">
+                                You have read-only access.
+                            </div>
+                        )}
                         <form onSubmit={handleSubmit}>
                             <div className="mb-3">
                                 <label className="block text-sm font-medium text-gray-700">Order #</label>
