@@ -26,17 +26,27 @@ export default function Forecasting() {
 
     const handleGenerateForecast = async () => {
         try {
-            await dashboardAPI.generateForecast({
+            const response = await dashboardAPI.generateForecast({
                 product: selectedProduct,
                 forecastPeriod: parseInt(forecastPeriod),
             });
+            
+            // Extract summary from response
+            if (response.summary) {
+                const summary = response.summary;
+                // Update the results preview section with actual data
+                document.getElementById('expected-demand').textContent = `${Math.round(summary.total_forecast)} units`;
+                document.getElementById('optimal-inventory').textContent = `${Math.round(summary.optimal_inventory)} units`;
+                document.getElementById('confidence').textContent = `${Math.round(summary.confidence * 100)}% confidence`;
+            }
+            
             alert('Forecast generated successfully');
             // Reload forecasts
             const data = await dashboardAPI.listForecasts();
             setForecasts(data || []);
         } catch (err) {
             console.error(err);
-            alert('Failed to generate forecast');
+            alert('Failed to generate forecast. Make sure Python service is running on port 8000.');
         }
     };
 
@@ -92,14 +102,14 @@ export default function Forecasting() {
                         <div>
                             <div className="flex justify-between mb-1">
                                 <span className="text-sm font-medium">Expected Demand</span>
-                                <span className="text-sm font-bold">1,850 units</span>
+                                <span id="expected-demand" className="text-sm font-bold">1,850 units</span>
                             </div>
-                            <div className="text-xs text-gray-600">± 5.2% confidence</div>
+                            <div id="confidence" className="text-xs text-gray-600">± 5.2% confidence</div>
                         </div>
                         <div>
                             <div className="flex justify-between mb-1">
                                 <span className="text-sm font-medium">Optimal Inventory</span>
-                                <span className="text-sm font-bold">2,200 units</span>
+                                <span id="optimal-inventory" className="text-sm font-bold">2,200 units</span>
                             </div>
                             <div className="text-xs text-gray-600">95% service level</div>
                         </div>
@@ -108,11 +118,11 @@ export default function Forecasting() {
                             <ul className="text-xs space-y-2">
                                 <li className="flex items-start">
                                     <i className="fas fa-arrow-up text-green-500 mr-2 mt-0.5"></i>
-                                    <span>12% increase expected</span>
+                                    <span>AI-powered predictions</span>
                                 </li>
                                 <li className="flex items-start">
                                     <i className="fas fa-calendar text-blue-500 mr-2 mt-0.5"></i>
-                                    <span>Peak in Week 7</span>
+                                    <span>Trend analysis included</span>
                                 </li>
                             </ul>
                         </div>
